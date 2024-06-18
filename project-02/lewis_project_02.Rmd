@@ -1,0 +1,146 @@
+---
+title: "Mini-Project 02"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+    toc_float: true
+---
+
+# Data Visualization Project 02
+
+# Initial Plans
+
+I was initially planning to explore the Florida Lakes spatial dataset more. I wanted to highlight the counties with the most area of lakes. I found it hard to try to merge the geoms and find the intersections to get this to work. I also wanted to try to show the correlation of house prices to certain futures of houses, I figured scatter plots would be the best way to visualize this.
+
+# Narrative
+
+We load in all of the different packages and data for our analysis in this first chunk. Sadley nothing too fun here…
+
+```{r}
+library(tidyverse)
+library(sf)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library(plotly)
+library(broom)
+library(units)
+library("tools")
+library("maps")
+states <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
+counties <- st_as_sf(map("county", plot = FALSE, fill = TRUE))
+
+
+setwd( "..")
+florida_lakes <- read_sf("data/Florida_Lakes/Florida_Lakes.shp")
+
+houses <- read_csv("data/WestRoxbury.csv")
+
+```
+
+Next, we can begin to take a look at the houses dataset. I found it very interesting that the largest average house sizes per year were in the 1800s. I would like to dive more into this in the future.
+
+```{r}
+houses %>%
+  group_by(`YR BUILT`) %>%
+  summarise(Average_Size = mean(`LIVING AREA`, na.rm = TRUE),
+            Average_Value = min(`TOTAL VALUE`, na.rm = TRUE),
+            Average_Users_Rooms = max(ROOMS, na.rm = TRUE)) %>%
+  arrange(desc(Average_Size))
+```
+
+Below is an interactive plot that you can use to look at the houses dataset comparing the total value of a house to its living area. Feel free to explore it and take a look at some of the outliers.
+
+```{r}
+
+plot <- ggplot(houses, aes(x = `LIVING AREA`, y = `TOTAL VALUE`, size = BEDROOMS, color = BEDROOMS)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Total Value vs Living Area",
+       x = "Living Area (sqft)",
+       y = "Total Value (in $1000s)",
+       size = "Number of Bedrooms",
+       color = "Number of Bedrooms") +
+  scale_size_continuous(range = c(.1, 3)) +
+  theme_minimal()
+
+# Convert ggplot2 to ggplotly for interactivity
+inter_plot <- ggplotly(plot)
+
+inter_plot
+
+htmlwidgets::saveWidget(inter_plot, "value_vs_area.html")
+
+```
+
+Next we move to the Florida lakes data, we can see how lakes are spread through different counties. I limited this to central Florida so we can see lakes we are familiar with and pointed out the largest one.
+
+```{r}
+invalid_geometries <- !st_is_valid(florida_lakes)
+
+florida_lakes <- st_make_valid(florida_lakes)
+
+florida_lakes <- florida_lakes %>%
+  mutate(area = st_area(geometry)) %>%
+  arrange(desc(area))
+
+florida_lakes$area <- as.numeric(florida_lakes$area)
+
+lake_summary <- florida_lakes %>%
+  group_by(COUNTY) %>%
+  summarise(Average_Area = mean(area, na.rm = TRUE),
+    total_lakes = n(),
+    total_area = sum(area, na.rm = TRUE),
+    mean_area = mean(area, na.rm = TRUE),
+    median_area = median(area, na.rm = TRUE),
+    max_area = max(area, na.rm = TRUE),
+    min_area = min(area, na.rm = TRUE)) %>%
+  arrange(desc(Average_Area))
+
+lake_summary
+
+```
+
+
+```{r}
+largest_lake <- florida_lakes[1, ]
+centroid <- st_centroid(largest_lake$geometry)
+label <- largest_lake$NAME
+
+x_shift <- -.7
+y_shift <- -.3
+
+ggplot(data = florida_lakes) +
+  geom_sf(data = states) +
+  geom_sf(data = counties) +
+  geom_sf(aes(fill = area)) +
+  scale_fill_viridis_c(option = "plasma") +
+  coord_sf(xlim = c(-83, -80), ylim = c(26.5, 29), expand = FALSE) +
+  ggtitle("Map of Central Florida Lakes by Area") +
+  theme_minimal() +
+  labs(fill = "Area (sq units)") +
+  annotate("text", x = st_coordinates(centroid)[, "X"] + x_shift , 
+             y = st_coordinates(centroid)[, "Y"] + y_shift, 
+             label = label, color = "red", size = 5, hjust = 0)
+
+```
+Below is the houses dataset again mapped with a linear model correlation. Much to our expectation we can visualize that house size has large correlation to the price. 
+
+```{r}
+
+ggplot(houses, aes(x = `TOTAL VALUE`, y = `LIVING AREA`)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              formula = "y ~ x") +
+  theme_minimal()
+
+```
+
+This is then backed up by the below correlation coefficients.
+
+```{r}
+house_model <- lm(`LIVING AREA` ~ `TOTAL VALUE`, houses)
+houses_coefs <- tidy(house_model, conf.int = TRUE) %>% 
+  filter(term != "(Intercept)")
+houses_coefs
+```
+Overall, this project should highlight some of the basic ways to look at data. While this is just the surface these visualizations could be improved upon to add in more factors. I found the spatial data difficult to work with and would like to dive into this more. I find it to be a very interesting topic as well.
