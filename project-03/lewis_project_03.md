@@ -20,6 +20,11 @@ Using the dataset obtained from FSU's [Florida Climate Center](https://climatece
 
 ```r
 library(tidyverse)
+library(ggridges)
+library(lubridate)
+
+setwd( "..")
+weather_tpa2016<- read_csv("data/tpa2016.csv")
 weather_tpa <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/tpa_weather_2022.csv")
 # random sample 
 sample_n(weather_tpa, 4)
@@ -29,10 +34,10 @@ sample_n(weather_tpa, 4)
 ## # A tibble: 4 × 7
 ##    year month   day precipitation max_temp min_temp ave_temp
 ##   <dbl> <dbl> <dbl>         <dbl>    <dbl>    <dbl>    <dbl>
-## 1  2022     6    18          0          98       81     89.5
-## 2  2022     4     3          0          80       68     74  
-## 3  2022    12    20          0.11       67       58     62.5
-## 4  2022     5    22          0          96       74     85
+## 1  2022    11    26             0       82       71     76.5
+## 2  2022     3    13             0       70       41     55.5
+## 3  2022     1    31             0       69       39     54  
+## 4  2022     2    14             0       68       46     57
 ```
 
 See https://www.reisanar.com/slides/relationships-models#10 for a reminder on how to use this type of dataset with the `lubridate` package for dates and times (example included in the slides uses data from 2016).
@@ -45,11 +50,86 @@ Using the 2022 data:
 
 Hint: the option `binwidth = 3` was used with the `geom_histogram()` function.
 
+
+```r
+tpa_clean2016 <- weather_tpa2016 %>% 
+  unite("doy", YEAR, MONTH, DAY, sep = "-") %>% 
+  mutate(doy = ymd(doy), 
+         max_temp = as.double(maxTemp))
+
+tpa_clean2016$month <- factor(month(tpa_clean2016$doy, label=TRUE, abbr=FALSE))
+
+ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
+  geom_histogram(binwidth = 3, show.legend = FALSE, color = "white") +
+  facet_wrap(~ month) +
+  labs(x = "Maximum temperatures",
+       y = "Number of Days") +
+  theme_bw(base_size = 15)
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+
+
+```r
+tpa_clean <- weather_tpa %>% 
+  unite("doy", year, month, day, sep = "-") %>% 
+  mutate(doy = ymd(doy), 
+         max_temp = as.double(max_temp), 
+         min_temp = as.double(min_temp), 
+         precipitation = as.double(precipitation))
+
+tpa_clean$month <- factor(month(tpa_clean$doy, label=TRUE, abbr=FALSE))
+
+ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
+  geom_histogram(binwidth = 3, show.legend = FALSE, color = "white") +
+  facet_wrap(~ month) +
+  labs(x = "Maximum temperatures",
+       y = "Number of Days") +
+  theme_bw(base_size = 15)
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+
+
 (b) Create a plot like the one below:
 
 <img src="https://github.com/reisanar/figs/raw/master/tpa_max_temps_density.png" width="80%" style="display: block; margin: auto;" />
 
 Hint: check the `kernel` parameter of the `geom_density()` function, and use `bw = 0.5`.
+
+
+```r
+ggplot(tpa_clean2016, aes(x = max_temp)) +
+  geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
+  labs(x = "Maximum Temperature",
+       y = "density") +
+  theme_bw(base_size = 15) +
+  theme(panel.border = element_blank())
+```
+
+```
+## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+```r
+ggplot(tpa_clean, aes(x = max_temp)) +
+  geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
+  labs(x = "Maximum Temperature",
+       y = "density") +
+  theme_bw(base_size = 15) +
+  theme(panel.border = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 
 (c) Create a plot like the one below:
 
@@ -57,12 +137,84 @@ Hint: check the `kernel` parameter of the `geom_density()` function, and use `bw
 
 Hint: default options for `geom_density()` were used. 
 
+
+```r
+ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
+  geom_density(alpha = 0.5, size = 1, show.legend = FALSE) +
+  facet_wrap(~ month) +
+  labs(title = "Density plots for each month in 2022",
+       x = "Maximum Temperature") +
+  theme_bw(base_size = 15) +
+  theme(axis.title.y.left = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+
+
+```r
+ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
+  geom_density(alpha = 0.5, size = 1, show.legend = FALSE) +
+  facet_wrap(~ month) +
+  labs(title = "Density plots for each month in 2022",
+       x = "Maximum Temperature") +
+  theme_bw(base_size = 15) +
+  theme(axis.title.y.left = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
+
 (d) Generate a plot like the chart below:
 
 
 <img src="https://github.com/reisanar/figs/raw/master/tpa_max_temps_ridges_plasma.png" width="80%" style="display: block; margin: auto;" />
 
 Hint: use the`{ggridges}` package, and the `geom_density_ridges()` function paying close attention to the `quantile_lines` and `quantiles` parameters. The plot above uses the `plasma` option (color scale) for the _viridis_ palette.
+
+
+```r
+ggplot(tpa_clean2016, aes(x = max_temp, y = month, fill = stat(x))) +
+  geom_density_ridges_gradient(quantile_lines=TRUE, quantiles = 2,lwd = 1) +
+  scale_fill_viridis_c(option = "C") +
+  labs(x = "Maximum temperature (in Farhenheit degrees)") +
+  theme_bw(base_size = 15) +
+  theme(axis.title.y.left = element_blank(),
+        panel.border = element_blank(),
+        legend.title = element_blank())
+```
+
+```
+## Warning: `stat(x)` was deprecated in ggplot2 3.4.0.
+## ℹ Please use `after_stat(x)` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+```
+
+```
+## Picking joint bandwidth of 1.49
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
+
+```r
+ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
+  geom_density_ridges_gradient(quantile_lines=TRUE, quantiles = 2,lwd = 1) +
+  scale_fill_viridis_c(option = "C") +
+  labs(x = "Maximum temperature (in Farhenheit degrees)") +
+  theme_bw(base_size = 15) +
+  theme(axis.title.y.left = element_blank(),
+        panel.border = element_blank(),
+        legend.title = element_blank())
+```
+
+```
+## Picking joint bandwidth of 1.93
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 
 (e) Create a plot of your choice that uses the attribute for precipitation _(values of -99.9 for temperature or -99.99 for precipitation represent missing data)_.
