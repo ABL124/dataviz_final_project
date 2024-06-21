@@ -23,7 +23,6 @@ library(ggridges)
 library(lubridate)
 
 setwd( "..")
-weather_tpa2016<- read_csv("data/tpa2016.csv")
 weather_tpa <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/tpa_weather_2022.csv")
 # random sample 
 sample_n(weather_tpa, 4)
@@ -40,23 +39,6 @@ knitr::include_graphics("https://github.com/reisanar/figs/raw/master/tpa_max_tem
 ```
 
 Hint: the option `binwidth = 3` was used with the `geom_histogram()` function.
-
-```{r}
-tpa_clean2016 <- weather_tpa2016 %>% 
-  unite("doy", YEAR, MONTH, DAY, sep = "-") %>% 
-  mutate(doy = ymd(doy), 
-         max_temp = as.double(maxTemp))
-
-tpa_clean2016$month <- factor(month(tpa_clean2016$doy, label=TRUE, abbr=FALSE))
-
-ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
-  geom_histogram(binwidth = 3, show.legend = FALSE, color = "white") +
-  facet_wrap(~ month) +
-  labs(x = "Maximum temperatures",
-       y = "Number of Days") +
-  theme_bw(base_size = 15)
-```
-
 
 ```{r}
 tpa_clean <- weather_tpa %>% 
@@ -77,7 +59,6 @@ ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
 ```
 
 
-
 (b) Create a plot like the one below:
 
 ```{r, echo = FALSE, out.width="80%", fig.align='center'}
@@ -86,15 +67,6 @@ knitr::include_graphics("https://github.com/reisanar/figs/raw/master/tpa_max_tem
 
 Hint: check the `kernel` parameter of the `geom_density()` function, and use `bw = 0.5`.
 
-```{r}
-
-ggplot(tpa_clean2016, aes(x = max_temp)) +
-  geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
-  labs(x = "Maximum Temperature",
-       y = "density") +
-  theme_bw(base_size = 15) +
-  theme(panel.border = element_blank())
-```
 ```{r}
 ggplot(tpa_clean, aes(x = max_temp)) +
   geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
@@ -112,17 +84,6 @@ knitr::include_graphics("https://github.com/reisanar/figs/raw/master/tpa_max_tem
 ```
 
 Hint: default options for `geom_density()` were used. 
-
-```{r}
-ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
-  geom_density(alpha = 0.5, size = 1, show.legend = FALSE) +
-  facet_wrap(~ month) +
-  labs(title = "Density plots for each month in 2022",
-       x = "Maximum Temperature") +
-  theme_bw(base_size = 15) +
-  theme(axis.title.y.left = element_blank())
-```
-
 
 ```{r}
 ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
@@ -143,17 +104,6 @@ knitr::include_graphics("https://github.com/reisanar/figs/raw/master/tpa_max_tem
 ```
 
 Hint: use the`{ggridges}` package, and the `geom_density_ridges()` function paying close attention to the `quantile_lines` and `quantiles` parameters. The plot above uses the `plasma` option (color scale) for the _viridis_ palette.
-
-```{r}
-ggplot(tpa_clean2016, aes(x = max_temp, y = month, fill = stat(x))) +
-  geom_density_ridges_gradient(quantile_lines=TRUE, quantiles = 2,lwd = 1) +
-  scale_fill_viridis_c(option = "C") +
-  labs(x = "Maximum temperature (in Farhenheit degrees)") +
-  theme_bw(base_size = 15) +
-  theme(axis.title.y.left = element_blank(),
-        panel.border = element_blank(),
-        legend.title = element_blank())
-```
 
 ```{r}
 ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
@@ -182,6 +132,7 @@ ggplot(monthly_avg_precip, aes(x = month, y = avg_precipitation, fill = max_temp
   labs(title = "Monthly Average Precipitation in 2022",
        x = "Month",
        y = "Average Precipitation (mm)") +
+  scale_fill_viridis_c(option = "A", na.value = "transparent", name = "Max Temperature") +
   theme_bw(base_size = 15) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank())
@@ -247,13 +198,15 @@ new_concrete %>%
 ggplot(new_concrete, aes(x = Cement)) +
   geom_histogram(binwidth = 20, fill = "blue", alpha = 0.7, color = "black") +
   labs(title = "Distribution of Cement", x = "Cement", y = "Frequency") +
-  theme_minimal()
+  theme_bw(base_size = 15) +
+  theme(panel.border = element_blank())
 ```
 ```{r}
-ggplot(new_concrete, aes(x = Concrete_compressive_strength)) +
-  geom_histogram(binwidth = 5, fill = "green", alpha = 0.7, color = "black") +
-  labs(title = "Distribution of Strength", x = "Strength", y = "Frequency") +
-  theme_minimal()
+ggplot(drop_na(new_concrete), aes(x = Concrete_compressive_strength, y = strength_range, fill = strength_range)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Distribution of Strength", x = "Strength", y = "Strength Range") +
+  theme_bw(base_size = 15) +
+    theme(panel.border = element_blank())
 ```
 
 

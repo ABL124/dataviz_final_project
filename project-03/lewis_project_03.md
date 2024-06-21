@@ -18,13 +18,12 @@ In this exercise you will explore methods to create different types of data visu
 Using the dataset obtained from FSU's [Florida Climate Center](https://climatecenter.fsu.edu/climate-data-access-tools/downloadable-data), for a station at Tampa International Airport (TPA) for 2022, attempt to recreate the charts shown below which were generated using data from 2016. You can read the 2022 dataset using the code below: 
 
 
-```r
+``` r
 library(tidyverse)
 library(ggridges)
 library(lubridate)
 
 setwd( "..")
-weather_tpa2016<- read_csv("data/tpa2016.csv")
 weather_tpa <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/tpa_weather_2022.csv")
 # random sample 
 sample_n(weather_tpa, 4)
@@ -34,10 +33,10 @@ sample_n(weather_tpa, 4)
 ## # A tibble: 4 × 7
 ##    year month   day precipitation max_temp min_temp ave_temp
 ##   <dbl> <dbl> <dbl>         <dbl>    <dbl>    <dbl>    <dbl>
-## 1  2022    11    23          0.05       79       65     72  
-## 2  2022     3    17          0          79       65     72  
-## 3  2022     6    11          2.81       90       75     82.5
-## 4  2022     4    21          0          87       67     77
+## 1  2022    12     4          0          80       61     70.5
+## 2  2022    11    28          0          78       64     71  
+## 3  2022    12    21          0.6        69       60     64.5
+## 4  2022     8    24          0.61       95       77     86
 ```
 
 See https://www.reisanar.com/slides/relationships-models#10 for a reminder on how to use this type of dataset with the `lubridate` package for dates and times (example included in the slides uses data from 2016).
@@ -51,27 +50,7 @@ Using the 2022 data:
 Hint: the option `binwidth = 3` was used with the `geom_histogram()` function.
 
 
-```r
-tpa_clean2016 <- weather_tpa2016 %>% 
-  unite("doy", YEAR, MONTH, DAY, sep = "-") %>% 
-  mutate(doy = ymd(doy), 
-         max_temp = as.double(maxTemp))
-
-tpa_clean2016$month <- factor(month(tpa_clean2016$doy, label=TRUE, abbr=FALSE))
-
-ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
-  geom_histogram(binwidth = 3, show.legend = FALSE, color = "white") +
-  facet_wrap(~ month) +
-  labs(x = "Maximum temperatures",
-       y = "Number of Days") +
-  theme_bw(base_size = 15)
-```
-
-![](lewis_project_03_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-
-
-
-```r
+``` r
 tpa_clean <- weather_tpa %>% 
   unite("doy", year, month, day, sep = "-") %>% 
   mutate(doy = ymd(doy), 
@@ -89,8 +68,7 @@ ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
   theme_bw(base_size = 15)
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
-
+![](lewis_project_03_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 
 (b) Create a plot like the one below:
@@ -100,8 +78,8 @@ ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
 Hint: check the `kernel` parameter of the `geom_density()` function, and use `bw = 0.5`.
 
 
-```r
-ggplot(tpa_clean2016, aes(x = max_temp)) +
+``` r
+ggplot(tpa_clean, aes(x = max_temp)) +
   geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
   labs(x = "Maximum Temperature",
        y = "density") +
@@ -117,18 +95,7 @@ ggplot(tpa_clean2016, aes(x = max_temp)) +
 ## generated.
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-
-```r
-ggplot(tpa_clean, aes(x = max_temp)) +
-  geom_density(kernel = "epanechnikov", bw = 0.5, fill = "darkgray", size = 1) +
-  labs(x = "Maximum Temperature",
-       y = "density") +
-  theme_bw(base_size = 15) +
-  theme(panel.border = element_blank())
-```
-
-![](lewis_project_03_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 
 (c) Create a plot like the one below:
@@ -138,21 +105,7 @@ ggplot(tpa_clean, aes(x = max_temp)) +
 Hint: default options for `geom_density()` were used. 
 
 
-```r
-ggplot(tpa_clean2016, aes(x = max_temp, fill = month)) +
-  geom_density(alpha = 0.5, size = 1, show.legend = FALSE) +
-  facet_wrap(~ month) +
-  labs(title = "Density plots for each month in 2022",
-       x = "Maximum Temperature") +
-  theme_bw(base_size = 15) +
-  theme(axis.title.y.left = element_blank())
-```
-
-![](lewis_project_03_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
-
-
-
-```r
+``` r
 ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
   geom_density(alpha = 0.5, size = 1, show.legend = FALSE) +
   facet_wrap(~ month) +
@@ -162,7 +115,7 @@ ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
   theme(axis.title.y.left = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 
 (d) Generate a plot like the chart below:
@@ -173,8 +126,8 @@ ggplot(tpa_clean, aes(x = max_temp, fill = month)) +
 Hint: use the`{ggridges}` package, and the `geom_density_ridges()` function paying close attention to the `quantile_lines` and `quantiles` parameters. The plot above uses the `plasma` option (color scale) for the _viridis_ palette.
 
 
-```r
-ggplot(tpa_clean2016, aes(x = max_temp, y = month, fill = stat(x))) +
+``` r
+ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
   geom_density_ridges_gradient(quantile_lines=TRUE, quantiles = 2,lwd = 1) +
   scale_fill_viridis_c(option = "C") +
   labs(x = "Maximum temperature (in Farhenheit degrees)") +
@@ -193,34 +146,16 @@ ggplot(tpa_clean2016, aes(x = max_temp, y = month, fill = stat(x))) +
 ```
 
 ```
-## Picking joint bandwidth of 1.49
-```
-
-![](lewis_project_03_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
-
-
-```r
-ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
-  geom_density_ridges_gradient(quantile_lines=TRUE, quantiles = 2,lwd = 1) +
-  scale_fill_viridis_c(option = "C") +
-  labs(x = "Maximum temperature (in Farhenheit degrees)") +
-  theme_bw(base_size = 15) +
-  theme(axis.title.y.left = element_blank(),
-        panel.border = element_blank(),
-        legend.title = element_blank())
-```
-
-```
 ## Picking joint bandwidth of 1.93
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
 (e) Create a plot of your choice that uses the attribute for precipitation _(values of -99.9 for temperature or -99.99 for precipitation represent missing data)_.
 
 
-```r
+``` r
 tpa_precipitation <- tpa_clean %>% mutate(precipitation = ifelse(precipitation == -99.99, NA, precipitation))
 
 monthly_avg_precip <- tpa_precipitation %>%
@@ -233,12 +168,13 @@ ggplot(monthly_avg_precip, aes(x = month, y = avg_precipitation, fill = max_temp
   labs(title = "Monthly Average Precipitation in 2022",
        x = "Month",
        y = "Average Precipitation (mm)") +
+  scale_fill_viridis_c(option = "A", na.value = "transparent", name = "Max Temperature") +
   theme_bw(base_size = 15) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 
 ## PART 2 
@@ -265,7 +201,7 @@ Concrete compressive strength | MPa, megapascals
 Below we read the `.csv` file using `readr::read_csv()` (the `readr` package is part of the `tidyverse`)
 
 
-```r
+``` r
 concrete <- read_csv("../data/concrete.csv", col_types = cols())
 ```
 
@@ -273,7 +209,7 @@ concrete <- read_csv("../data/concrete.csv", col_types = cols())
 Let us create a new attribute for visualization purposes, `strength_range`: 
 
 
-```r
+``` r
 new_concrete <- concrete %>%
   mutate(strength_range = cut(Concrete_compressive_strength, 
                               breaks = quantile(Concrete_compressive_strength, 
@@ -285,7 +221,7 @@ new_concrete <- concrete %>%
 1. Explore the distribution of 2 of the continuous variables available in the dataset. Do ranges make sense? Comment on your findings.
 
 
-```r
+``` r
 head(new_concrete)
 ```
 
@@ -303,7 +239,7 @@ head(new_concrete)
 ## #   Concrete_compressive_strength <dbl>, strength_range <fct>
 ```
 
-```r
+``` r
 new_concrete %>%
   summarise(Max_Cement = max(Cement, na.rm = TRUE),
             Average_Cement = mean(Cement, na.rm = TRUE),
@@ -325,23 +261,25 @@ new_concrete %>%
 ## # ℹ 2 more variables: Average_Age <dbl>, Min_Age <dbl>
 ```
 
-```r
+``` r
 ggplot(new_concrete, aes(x = Cement)) +
   geom_histogram(binwidth = 20, fill = "blue", alpha = 0.7, color = "black") +
   labs(title = "Distribution of Cement", x = "Cement", y = "Frequency") +
-  theme_minimal()
+  theme_bw(base_size = 15) +
+  theme(panel.border = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
-```r
-ggplot(new_concrete, aes(x = Concrete_compressive_strength)) +
-  geom_histogram(binwidth = 5, fill = "green", alpha = 0.7, color = "black") +
-  labs(title = "Distribution of Strength", x = "Strength", y = "Frequency") +
-  theme_minimal()
+``` r
+ggplot(drop_na(new_concrete), aes(x = Concrete_compressive_strength, y = strength_range, fill = strength_range)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Distribution of Strength", x = "Strength", y = "Strength Range") +
+  theme_bw(base_size = 15) +
+    theme(panel.border = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 
 2. Use a _temporal_ indicator such as the one available in the variable `Age` (measured in days). Generate a plot similar to the one shown below. Comment on your results.
@@ -349,7 +287,7 @@ ggplot(new_concrete, aes(x = Concrete_compressive_strength)) +
 <img src="https://github.com/reisanar/figs/raw/master/concrete_strength.png" width="80%" style="display: block; margin: auto;" />
 
 
-```r
+``` r
 ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fill = strength_range)) +
   geom_boxplot() +
   theme_bw() +
@@ -360,7 +298,7 @@ ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fil
   theme(panel.border = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 
 3. Create a scatterplot similar to the one shown below. Pay special attention to which variables are being mapped to specific aesthetics of the plot. Comment on your results. 
@@ -369,7 +307,7 @@ ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fil
 
 
 
-```r
+``` r
 ggplot(new_concrete, aes(x = Cement, y = Concrete_compressive_strength, color = Water,  size = Age)) +
   geom_point(alpha = 0.6) +
   scale_color_viridis_c() +
@@ -384,7 +322,7 @@ ggplot(new_concrete, aes(x = Cement, y = Concrete_compressive_strength, color = 
   theme(panel.border = element_blank())
 ```
 
-![](lewis_project_03_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](lewis_project_03_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 
 
