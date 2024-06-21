@@ -172,7 +172,7 @@ ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
 ```{r}
 tpa_precipitation <- tpa_clean %>% mutate(precipitation = ifelse(precipitation == -99.99, NA, precipitation))
 
-monthly_avg_precip <- data %>%
+monthly_avg_precip <- tpa_precipitation %>%
   group_by(month) %>%
   summarise(avg_precipitation = mean(precipitation, na.rm = TRUE),
             max_temp = max(max_temp, na.rm = TRUE))

@@ -34,10 +34,10 @@ sample_n(weather_tpa, 4)
 ## # A tibble: 4 × 7
 ##    year month   day precipitation max_temp min_temp ave_temp
 ##   <dbl> <dbl> <dbl>         <dbl>    <dbl>    <dbl>    <dbl>
-## 1  2022     4    28          0.14       88       70     79  
-## 2  2022    12    24          0          45       31     38  
-## 3  2022    12    21          0.6        69       60     64.5
-## 4  2022     4    16          0          88       73     80.5
+## 1  2022    11    23          0.05       79       65     72  
+## 2  2022     3    17          0          79       65     72  
+## 3  2022     6    11          2.81       90       75     82.5
+## 4  2022     4    21          0          87       67     77
 ```
 
 See https://www.reisanar.com/slides/relationships-models#10 for a reminder on how to use this type of dataset with the `lubridate` package for dates and times (example included in the slides uses data from 2016).
@@ -220,31 +220,31 @@ ggplot(tpa_clean, aes(x = max_temp, y = month, fill = stat(x))) +
 (e) Create a plot of your choice that uses the attribute for precipitation _(values of -99.9 for temperature or -99.99 for precipitation represent missing data)_.
 
 
+```r
+tpa_precipitation <- tpa_clean %>% mutate(precipitation = ifelse(precipitation == -99.99, NA, precipitation))
+
+monthly_avg_precip <- tpa_precipitation %>%
+  group_by(month) %>%
+  summarise(avg_precipitation = mean(precipitation, na.rm = TRUE),
+            max_temp = max(max_temp, na.rm = TRUE))
+
+ggplot(monthly_avg_precip, aes(x = month, y = avg_precipitation, fill = max_temp)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Monthly Average Precipitation in 2022",
+       x = "Month",
+       y = "Average Precipitation (mm)") +
+  theme_bw(base_size = 15) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
 
 ## PART 2 
 
-> **You can choose to work on either Option (A) or Option (B)**. Remove from this template the option you decided not to work on. 
 
-
-### Option (A): Visualizing Text Data
-
-Review the set of slides (and additional resources linked in it) for visualizing text data: https://www.reisanar.com/slides/text-viz#1
-
-Choose any dataset with text data, and create at least one visualization with it. For example, you can create a frequency count of most used bigrams, a sentiment analysis of the text data, a network visualization of terms commonly used together, and/or a visualization of a topic modeling approach to the problem of identifying words/documents associated to different topics in the text data you decide to use. 
-
-Make sure to include a copy of the dataset in the `data/` folder, and reference your sources if different from the ones listed below:
-
-- [Billboard Top 100 Lyrics](https://github.com/reisanar/datasets/blob/master/BB_top100_2015.csv)
-
-- [RateMyProfessors comments](https://github.com/reisanar/datasets/blob/master/rmp_wit_comments.csv)
-
-- [FL Poly News Articles](https://github.com/reisanar/datasets/blob/master/flpoly_news_SP23.csv)
-
-
-(to get the "raw" data from any of the links listed above, simply click on the `raw` button of the GitHub page and copy the URL to be able to read it in your computer using the `read_csv()` function)
-
-
-### Option (B): Data on Concrete Strength 
+### Data on Concrete Strength 
 
 Concrete is the most important material in **civil engineering**. The concrete compressive strength is a highly nonlinear function of _age_ and _ingredients_. The dataset used here is from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php), and it contains 1030 observations with 9 different attributes 9 (8 quantitative input variables, and 1 quantitative output variable). A data dictionary is included below: 
 
@@ -284,14 +284,107 @@ new_concrete <- concrete %>%
 
 1. Explore the distribution of 2 of the continuous variables available in the dataset. Do ranges make sense? Comment on your findings.
 
+
+```r
+head(new_concrete)
+```
+
+```
+## # A tibble: 6 × 10
+##   Cement Blast_Furnace_Slag Fly_Ash Water Superplasticizer Coarse_Aggregate
+##    <dbl>              <dbl>   <dbl> <dbl>            <dbl>            <dbl>
+## 1   540                  0        0   162              2.5            1040 
+## 2   540                  0        0   162              2.5            1055 
+## 3   332.               142.       0   228              0               932 
+## 4   332.               142.       0   228              0               932 
+## 5   199.               132.       0   192              0               978.
+## 6   266                114        0   228              0               932 
+## # ℹ 4 more variables: Fine_Aggregate <dbl>, Age <dbl>,
+## #   Concrete_compressive_strength <dbl>, strength_range <fct>
+```
+
+```r
+new_concrete %>%
+  summarise(Max_Cement = max(Cement, na.rm = TRUE),
+            Average_Cement = mean(Cement, na.rm = TRUE),
+            Min_Cement = min(Cement, na.rm = TRUE),
+            Max_Water = max(Water, na.rm = TRUE),
+            Average_Water = mean(Water, na.rm = TRUE),
+            Min_Water = min(Water, na.rm = TRUE),
+            Max_Age = max(Age, na.rm = TRUE),
+            Average_Age = mean(Age, na.rm = TRUE),
+            Min_Age = min(Age, na.rm = TRUE),
+            )
+```
+
+```
+## # A tibble: 1 × 9
+##   Max_Cement Average_Cement Min_Cement Max_Water Average_Water Min_Water Max_Age
+##        <dbl>          <dbl>      <dbl>     <dbl>         <dbl>     <dbl>   <dbl>
+## 1        540           281.        102       247          182.      122.     365
+## # ℹ 2 more variables: Average_Age <dbl>, Min_Age <dbl>
+```
+
+```r
+ggplot(new_concrete, aes(x = Cement)) +
+  geom_histogram(binwidth = 20, fill = "blue", alpha = 0.7, color = "black") +
+  labs(title = "Distribution of Cement", x = "Cement", y = "Frequency") +
+  theme_minimal()
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+```r
+ggplot(new_concrete, aes(x = Concrete_compressive_strength)) +
+  geom_histogram(binwidth = 5, fill = "green", alpha = 0.7, color = "black") +
+  labs(title = "Distribution of Strength", x = "Strength", y = "Frequency") +
+  theme_minimal()
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+
+
 2. Use a _temporal_ indicator such as the one available in the variable `Age` (measured in days). Generate a plot similar to the one shown below. Comment on your results.
 
 <img src="https://github.com/reisanar/figs/raw/master/concrete_strength.png" width="80%" style="display: block; margin: auto;" />
 
 
+```r
+ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fill = strength_range)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(
+    x = "Age (in days)",
+    y = "Compressive Strength (in MPa)",
+    fill = "Strength Range") +
+  theme(panel.border = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+
+
 3. Create a scatterplot similar to the one shown below. Pay special attention to which variables are being mapped to specific aesthetics of the plot. Comment on your results. 
 
 <img src="https://github.com/reisanar/figs/raw/master/cement_plot.png" width="80%" style="display: block; margin: auto;" />
+
+
+
+```r
+ggplot(new_concrete, aes(x = Cement, y = Concrete_compressive_strength, color = Water,  size = Age)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_bw()+
+  labs(
+    title = "Exploring Strength versus (Cement, Age, and Water)",
+    x = "Cement",
+    y = "Strength",
+    size = "Age",
+    color = "Water",
+    caption="Age is measured in days") +
+  theme(panel.border = element_blank())
+```
+
+![](lewis_project_03_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 
 
