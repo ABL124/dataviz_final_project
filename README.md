@@ -5,39 +5,35 @@
 Learn more about me in my [GitHub profile page](https://github.com/ABL124). 
 
 
-
 ## Project 01
 
-In the `project_01/` folder you can find... _[add short description of your revised project here]_
+In the `project_01/` folder you can find a project exploring a data set that about car manufacturers over the last two decades. It explores the how different manufacters have impoved the efficeny of their cars.
 
 **Sample data visualization:** 
 
-_[include your favorite visualization from this project here]_
-<img src="https://github.com/reisanar/figs/raw/master/echarts.png" width="70%" height="70%">
+<img src="project-01/lewis_project_01_files/figure-html/unnamed-chunk-5-1.png" width="70%" height="70%">
 
 
 ## Project 02
 
-In this project, I explored ... _[short description of your revised project goes here]_ Find the code and report in the `project_02/` folder.
+In this project, I explored a data set on housing in West Roxbury. Florida Lakes were also explored with a spatial visualization. Find the code and report in the `project_02/` folder.
 
 **Sample data visualization:** 
 
-_[include your favorite visualization from this project here]_
-<img src="https://raw.githubusercontent.com/reisanar/dataviz_final_project/main/figures/fl_higher_ed.png" width="80%" height="80%">
-
-(you can place your figures in the `figures/` folder and use the `![](path_to_picture)` option to add the pictures here)
+<img src="project-02/lewis_project_02_files/figure-html/unnamed-chunk-6-1.png" width="70%" height="70%">
 
 
 ## Project 03
 
-In this project, I explored ... _[short description of the data visualizations you for this part of the project produced goes here]_
+In this project, I explored weather patterns at the Tampa International Airport as well as data on concrete. You can view this report and data in the `project_03/` folder.
 
 **Sample data visualization:** 
 
-_[include your favorite visualization from this project here]_
-<img src="https://github.com/reisanar/figs/raw/master/concrete_density.png" width="80%" height="80%">
+<img src="project-03/lewis_project_03_files/figure-html/unnamed-chunk-10-1.png" width="70%" height="70%">
 
 
 ### Moving Forward
 
 _Please add here a short reflection on what you learned and what you plan to continue exploring in terms of data visualization, data storytelling, reproducible research, and/or related topics._
+
+This class has taught me many things about making data visualizations. I was shocked at how much of an impact how the story is told in conjunction with proper visualizations assists in getting your point across. I have started to read articles more aware of this. I also was surprised at how much time it takes to make good data visualizations. There were many dos and don'ts in the class material that I will try to follow going forward, another thing that I started noticing in other articles I have been reading outside of class.

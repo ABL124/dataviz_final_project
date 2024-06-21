@@ -18,7 +18,7 @@ When I first looked at this data set, I was really hoping to explore how cars ha
 This story begins like most others...by getting our data and packages loaded into R.
 
 
-```r
+``` r
 library(tidyverse)
 ```
 
@@ -35,14 +35,14 @@ library(tidyverse)
 ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 ```
 
-```r
+``` r
 setwd( "..")
 fuel <- read_csv("data/fuel.csv", col_types = cols())
 ```
 After loading in the data and starting to explore it I decided I wanted to limit the car manufacturers. Many of the ones in this data set are either too expense for most people or they don't make enough to justify overall trends. To limit the data, I only used car manufacturers that only had 1000 or more entries in this data set. Below we also combined the city MPG and highway MPG to get an average for each car as this was missing from the data set.
 
 
-```r
+``` r
 fuel_avg <- fuel %>% mutate(avg_mpg = (city_mpg_ft1 + highway_mpg_ft1)/2)
 
 over1k <- fuel_avg%>%
@@ -79,7 +79,7 @@ We can see this left us with 10 manufacturers. Above is some general summarizati
 
 
 
-```r
+``` r
 avg_mpg_per_class <- fuel_limited %>%
   filter(is.na(engine_cylinders) == FALSE) %>%
   group_by(engine_cylinders) %>%
@@ -97,7 +97,7 @@ ggplot(avg_mpg_per_class, aes(x = reorder(engine_cylinders, avg_combined_mpg), y
 Above we can see that as the cylinder count in cars goes up the fuel efficiency goes down. Between some cylinder counts there was very little variation like 8, 10, and 12. Overall the use of these larger engines is limited to large trucks and other applications with heavy loads. Next, we look at the general fuel efficiency of cars over time.
 
 
-```r
+``` r
 avg_mpg_per_year <- fuel_limited %>%
   group_by(year) %>%
   summarize(avg_combined_mpg = mean(avg_mpg, na.rm = TRUE))
@@ -115,27 +115,23 @@ We can see that there is a decrease at the beginning of the data set then it lev
 
 
 
-```r
-american <- filter(fuel_avg, make %in% c("Dodge", "Ford","Chevrolet","GMC"))
+``` r
+current_cars <- filter(fuel_avg, make %in% c("Dodge", "Ford","Chevrolet","GMC")) %>%
+  filter(fuel_type == "Regular") %>%
+  filter(year > 2010)
 
-p <- ggplot(filter(american, fuel_type == "Regular"), aes(x = year, y = avg_mpg
-                                                          ,color = make))
-
-p + geom_point() +
-    geom_smooth() +
-    labs(y = "Combined MPG",
-         title = "American Car Manufacturers Gas Combined MPG Over Time") +
-    theme_minimal() +
-    theme(legend.position="top",
-          legend.title = element_blank(),
-          axis.title.x=element_blank())
-```
-
-```
-## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+ggplot(current_cars, aes(x = factor(year), y = avg_mpg, fill = make)) +
+  geom_boxplot() +
+  labs(y = "Average MPG") +
+  theme_bw(base_size = 15) +
+  theme(legend.position="top",
+        legend.title = element_blank(),
+        axis.title.x=element_blank(),
+        panel.border = element_blank())
 ```
 
 ![](lewis_project_01_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 In the above graph we can see that three out of the four American car manufacturers that we are analyzing follow almost and identical trend line. GMC is the only one out of the line but they focus more on Trucks and SUVs than any of their competitors, so this below average line makes sense. We can see that all of them follow a slight upwards curve past 2010 but not as steep as the last graph.
 
 

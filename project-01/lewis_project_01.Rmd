@@ -79,21 +79,20 @@ We can see that there is a decrease at the beginning of the data set then it lev
 
 
 ```{r}
-american <- filter(fuel_avg, make %in% c("Dodge", "Ford","Chevrolet","GMC"))
+current_cars <- filter(fuel_avg, make %in% c("Dodge", "Ford","Chevrolet","GMC")) %>%
+  filter(fuel_type == "Regular") %>%
+  filter(year > 2010)
 
-p <- ggplot(filter(american, fuel_type == "Regular"), aes(x = year, y = avg_mpg
-                                                          ,color = make))
-
-p + geom_point() +
-    geom_smooth() +
-    labs(y = "Combined MPG",
-         title = "American Car Manufacturers Gas Combined MPG Over Time") +
-    theme_minimal() +
-    theme(legend.position="top",
-          legend.title = element_blank(),
-          axis.title.x=element_blank())
-
+ggplot(current_cars, aes(x = factor(year), y = avg_mpg, fill = make)) +
+  geom_boxplot() +
+  labs(y = "Average MPG") +
+  theme_bw(base_size = 15) +
+  theme(legend.position="top",
+        legend.title = element_blank(),
+        axis.title.x=element_blank(),
+        panel.border = element_blank())
 ```
+
 In the above graph we can see that three out of the four American car manufacturers that we are analyzing follow almost and identical trend line. GMC is the only one out of the line but they focus more on Trucks and SUVs than any of their competitors, so this below average line makes sense. We can see that all of them follow a slight upwards curve past 2010 but not as steep as the last graph.
 
 
