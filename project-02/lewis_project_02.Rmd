@@ -63,14 +63,16 @@ plot <- ggplot(houses, aes(x = `LIVING AREA`, y = `TOTAL VALUE`, size = BEDROOMS
   scale_size_continuous(range = c(.1, 3)) +
   theme_minimal()
 
-# Convert ggplot2 to ggplotly for interactivity
 inter_plot <- ggplotly(plot)
-
-inter_plot
 
 htmlwidgets::saveWidget(inter_plot, "value_vs_area.html")
 
 ```
+
+```{r}
+widgetframe::frameWidget(inter_plot)
+```
+
 
 Next we move to the Florida lakes data, we can see how lakes are spread through different counties. I limited this to central Florida so we can see lakes we are familiar with and pointed out the largest one.
 
@@ -116,20 +118,23 @@ ggplot(data = florida_lakes) +
   scale_fill_viridis_c(option = "plasma",name = "Area (sq units)") +
   coord_sf(xlim = c(-83, -80), ylim = c(26.5, 29), expand = FALSE) +
   ggtitle("Map of Central Florida Lakes by Area") +
-  theme_minimal() +
+  theme_bw() +
+  theme(axis.title.x=element_blank(),
+        panel.border = element_blank(),
+        axis.title.y=element_blank()) +
   annotate("text", x = st_coordinates(centroid)[, "X"] + x_shift , 
              y = st_coordinates(centroid)[, "Y"] + y_shift, 
              label = label, color = "red", size = 5, hjust = 0)
 
 ```
-Below is the houses dataset again mapped with a linear model correlation. Much to our expectation we can visualize that house size has large correlation to the price. 
+Below is the houses dataset again mapped with a linear model correlation. Much to our expectation we can visualize that house size, bedroom counts, and room count has large correlation to the price. 
 
 ```{r}
 
-model <- lm(`TOTAL VALUE` ~ `LIVING AREA` + ROOMS + BEDROOMS, data = houses)
+house_model <- lm(`TOTAL VALUE` ~ `LIVING AREA` + ROOMS + BEDROOMS, data = houses)
 
 houses <- houses %>%
-  mutate(predicted_value = predict(model, houses),
+  mutate(predicted_value = predict(house_model, houses),
          residuals = `TOTAL VALUE` - predicted_value)
 
 ggplot(houses, aes(x = `LIVING AREA`, y = `TOTAL VALUE`)) +
@@ -138,19 +143,19 @@ ggplot(houses, aes(x = `LIVING AREA`, y = `TOTAL VALUE`)) +
   labs(title = "Prediction of House Total Value Based on Living Area and Number of Rooms",
        x = "Living Area (sq ft)",
        y = "Total Value ($)",
-       subtitle = "A multiple linear regression model to predict house value",
-       caption = "Data Source: [Your Data Source]") +
-  theme_minimal() +
-  scale_color_gradient(low = "red", high = "green") +  # Residuals color gradient
-  theme(plot.title = element_text(hjust = 0.5),
+       subtitle = "A multiple linear regression model to predict house value") +
+  scale_color_gradient(low = "red", high = "green", name = "Residuals") +
+  theme_bw(base_size = 10) +
+  theme(axis.title.x=element_blank(),
+        panel.border = element_blank(),
+        plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5))
 
 ```
 
-This is then backed up by the below correlation coefficients.
+We can see the the data follow the LM model well with only some outliters and residuals being close to 0.
 
 ```{r}
-house_model <- lm(`LIVING AREA` ~ `TOTAL VALUE`, houses)
 houses_coefs <- tidy(house_model, conf.int = TRUE) %>% 
   filter(term != "(Intercept)")
 houses_coefs

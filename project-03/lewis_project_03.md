@@ -33,10 +33,10 @@ sample_n(weather_tpa, 4)
 ## # A tibble: 4 × 7
 ##    year month   day precipitation max_temp min_temp ave_temp
 ##   <dbl> <dbl> <dbl>         <dbl>    <dbl>    <dbl>    <dbl>
-## 1  2022    12     4          0          80       61     70.5
-## 2  2022    11    28          0          78       64     71  
-## 3  2022    12    21          0.6        69       60     64.5
-## 4  2022     8    24          0.61       95       77     86
+## 1  2022     7    24          0          95       79     87  
+## 2  2022    10    21          0          77       54     65.5
+## 3  2022    10    12          0.02       85       74     79.5
+## 4  2022     4    15          0.02       87       73     80
 ```
 
 See https://www.reisanar.com/slides/relationships-models#10 for a reminder on how to use this type of dataset with the `lubridate` package for dates and times (example included in the slides uses data from 2016).
@@ -280,7 +280,7 @@ ggplot(drop_na(new_concrete), aes(x = Concrete_compressive_strength, y = strengt
 ```
 
 ![](lewis_project_03_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
-
+The above boxplots show us the ranges of strength of concrete. We can use this to verify the strength range given to us within the dataset and look at the IQR for each of the ranges. This gives us more details as to where most of the observations within each range lie.
 
 2. Use a _temporal_ indicator such as the one available in the variable `Age` (measured in days). Generate a plot similar to the one shown below. Comment on your results.
 
@@ -299,7 +299,7 @@ ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fil
 ```
 
 ![](lewis_project_03_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
-
+We can see in the plot above that the older cement is the stronger it tends to be. While there are some exections to this, the boxplots do trend upwards with time.
 
 3. Create a scatterplot similar to the one shown below. Pay special attention to which variables are being mapped to specific aesthetics of the plot. Comment on your results. 
 
@@ -325,5 +325,6 @@ ggplot(new_concrete, aes(x = Cement, y = Concrete_compressive_strength, color = 
 ![](lewis_project_03_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 
+The scatter plot shows that material strength generally increases with higher cement content, though there is significant variability. Higher water content is associated with lower strength, while lower water content correlates with higher strength. Larger, older samples tend to exhibit higher strength values, indicating that strength increases over time. Despite these trends, the variability in strength suggests the influence of additional factors beyond cement and water content and age.
 
 

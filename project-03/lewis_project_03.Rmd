@@ -135,7 +135,8 @@ ggplot(monthly_avg_precip, aes(x = month, y = avg_precipitation, fill = max_temp
   scale_fill_viridis_c(option = "A", na.value = "transparent", name = "Max Temperature") +
   theme_bw(base_size = 15) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.border = element_blank())
+        panel.border = element_blank(),
+        axis.title.x=element_blank())
 ```
 
 
@@ -208,7 +209,7 @@ ggplot(drop_na(new_concrete), aes(x = Concrete_compressive_strength, y = strengt
   theme_bw(base_size = 15) +
     theme(panel.border = element_blank())
 ```
-
+The above boxplots show us the ranges of strength of concrete. We can use this to verify the strength range given to us within the dataset and look at the IQR for each of the ranges. This gives us more details as to where most of the observations within each range lie.
 
 2. Use a _temporal_ indicator such as the one available in the variable `Age` (measured in days). Generate a plot similar to the one shown below. Comment on your results.
 
@@ -228,7 +229,7 @@ ggplot(new_concrete, aes(x = factor(Age), y = Concrete_compressive_strength, fil
     fill = "Strength Range") +
   theme(panel.border = element_blank())
 ```
-
+We can see in the plot above that the older cement is the stronger it tends to be. While there are some exections to this, the boxplots do trend upwards with time.
 
 3. Create a scatterplot similar to the one shown below. Pay special attention to which variables are being mapped to specific aesthetics of the plot. Comment on your results. 
 
@@ -253,5 +254,6 @@ ggplot(new_concrete, aes(x = Cement, y = Concrete_compressive_strength, color = 
 ```
 
 
+The scatter plot shows that material strength generally increases with higher cement content, though there is significant variability. Higher water content is associated with lower strength, while lower water content correlates with higher strength. Larger, older samples tend to exhibit higher strength values, indicating that strength increases over time. Despite these trends, the variability in strength suggests the influence of additional factors beyond cement and water content and age.
 
 

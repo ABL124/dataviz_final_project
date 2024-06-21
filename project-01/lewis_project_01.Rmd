@@ -58,7 +58,8 @@ ggplot(avg_mpg_per_class, aes(x = reorder(engine_cylinders, avg_combined_mpg), y
   geom_bar(stat = 'identity', fill = 'orange') +
   coord_flip() +
   labs(title = 'Average Fuel Economy by Cylinder Count', x = 'Engine Cylinders', y = 'Average Combined MPG') +
-  theme_minimal()
+  theme_bw(base_size = 15) +
+  theme(panel.border = element_blank())
 ```
 Above we can see that as the cylinder count in cars goes up the fuel efficiency goes down. Between some cylinder counts there was very little variation like 8, 10, and 12. Overall the use of these larger engines is limited to large trucks and other applications with heavy loads. Next, we look at the general fuel efficiency of cars over time.
 
@@ -68,13 +69,15 @@ avg_mpg_per_year <- fuel_limited %>%
   summarize(avg_combined_mpg = mean(avg_mpg, na.rm = TRUE))
 
 ggplot(avg_mpg_per_year, aes(x = year, y = avg_combined_mpg)) +
-  geom_line(color = 'blue') +
+  geom_line(color = 'blue', size = 1) +
   labs(title = 'Average Fuel Economy Over Time',
        y = 'Average Combined MPG') +
-  theme_minimal() +
-  theme(axis.title.x=element_blank())
+  theme_bw(base_size = 15) +
+  theme(axis.title.x=element_blank(),
+        panel.border = element_blank())
 
 ```
+
 We can see that there is a decrease at the beginning of the data set then it levels off over time until a rapid increase in the last decade. This steep increase could be explained by the creation of hybrid and electric vehicles in this dataset. Although there are no exclusive electric manufacturers in our limited data set like Tesla there are still other well-known hybrids at this time like the Toyota Prius and Chevy Volt. Speaking of American manufacturers, I wanted to look at them specifically to see if they followed a similar trend line to the one above.
 
 
@@ -93,7 +96,7 @@ ggplot(current_cars, aes(x = factor(year), y = avg_mpg, fill = make)) +
         panel.border = element_blank())
 ```
 
-In the above graph we can see that three out of the four American car manufacturers that we are analyzing follow almost and identical trend line. GMC is the only one out of the line but they focus more on Trucks and SUVs than any of their competitors, so this below average line makes sense. We can see that all of them follow a slight upwards curve past 2010 but not as steep as the last graph.
+From the box plots above we can observe that GMC has a significantly lower gas efficiency compared to the other manufactures. This could be explained by the fact that they focus more on Trucks and SUVs than any of their competitors. We can see that the other three manufacturers were increasing over the years but started to fall off at the end. The outliers at the top of the graph is expected to be hybrid cars that company starting investing into in this date range.
 
 
 
