@@ -113,11 +113,10 @@ ggplot(data = florida_lakes) +
   geom_sf(data = states) +
   geom_sf(data = counties) +
   geom_sf(aes(fill = area)) +
-  scale_fill_viridis_c(option = "plasma") +
+  scale_fill_viridis_c(option = "plasma",name = "Area (sq units)") +
   coord_sf(xlim = c(-83, -80), ylim = c(26.5, 29), expand = FALSE) +
   ggtitle("Map of Central Florida Lakes by Area") +
   theme_minimal() +
-  labs(fill = "Area (sq units)") +
   annotate("text", x = st_coordinates(centroid)[, "X"] + x_shift , 
              y = st_coordinates(centroid)[, "Y"] + y_shift, 
              label = label, color = "red", size = 5, hjust = 0)
@@ -127,11 +126,24 @@ Below is the houses dataset again mapped with a linear model correlation. Much t
 
 ```{r}
 
-ggplot(houses, aes(x = `TOTAL VALUE`, y = `LIVING AREA`)) +
-  geom_point() +
-  geom_smooth(method = "lm",
-              formula = "y ~ x") +
-  theme_minimal()
+model <- lm(`TOTAL VALUE` ~ `LIVING AREA` + ROOMS + BEDROOMS, data = houses)
+
+houses <- houses %>%
+  mutate(predicted_value = predict(model, houses),
+         residuals = `TOTAL VALUE` - predicted_value)
+
+ggplot(houses, aes(x = `LIVING AREA`, y = `TOTAL VALUE`)) +
+  geom_point(aes(color = residuals), alpha = 0.6) +  # Color points by residuals
+  geom_smooth(method = "lm", formula = y ~ x, color = "blue") +
+  labs(title = "Prediction of House Total Value Based on Living Area and Number of Rooms",
+       x = "Living Area (sq ft)",
+       y = "Total Value ($)",
+       subtitle = "A multiple linear regression model to predict house value",
+       caption = "Data Source: [Your Data Source]") +
+  theme_minimal() +
+  scale_color_gradient(low = "red", high = "green") +  # Residuals color gradient
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
 
 ```
 
